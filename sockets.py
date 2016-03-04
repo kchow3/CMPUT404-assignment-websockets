@@ -59,14 +59,6 @@ class World:
     def world(self):
         return self.space
 
-myWorld = World()        
-
-def set_listener( entity, data ):
-    ''' do something with the update ! '''
-
-
-myWorld.add_set_listener( set_listener )
-
 class Client:
     def __init__(self):
         self.queue = queue.Queue()
@@ -76,6 +68,25 @@ class Client:
 
     def get(self):
         return self.queue.get()
+
+myWorld = World()
+clients = list()        
+
+def send_all(msg):
+    for client in clients:
+        client.put( msg )
+
+def send_all_json(obj):
+    send_all( json.dumps(obj) )
+
+def set_listener( entity, data ):
+    ''' do something with the update ! '''
+    jsonObj = {}
+    jsonObj[entity] = data
+    send_all_json(jsonObj);
+
+
+myWorld.add_set_listener( set_listener )
         
 @app.route('/')
 def hello():
@@ -90,7 +101,10 @@ def read_ws(ws,client):
             print "WS RECV: %s" % msg
             if (msg is not None):
                 packet = json.loads(msg)
-                send_all_json( packet )
+                # send_all_json(packet)
+                #update world
+                for key in packet:
+                    myWorld.set(key, packet[key])
             else:
                 break
     except:

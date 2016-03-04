@@ -34,7 +34,8 @@ var context = canvas.getContext("2d");
 var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
 var wscounter = 0;
-var socket;
+var url = "ws://"+host+"/subscribe";   
+var socket = new WebSocket(url);
 
 function debug(str) {
     var debugDiv = document.getElementById('debug');
@@ -124,7 +125,10 @@ function getPosition(e) {
 function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame(); // (but should we?)
-    //XXX: Send a XHTML Request that updates the entity you just modified!
+    //DONE: Send a XHTML Request that updates the entity you just modified!
+    var jsonObj = {};
+    jsonObj[entity] = data;
+    socket.send(JSON.stringify(jsonObj));
 }
 var counter = 0;
 function addEntityWithoutName(data) {
@@ -253,7 +257,8 @@ function wsSetup() {
     var url = "ws://"+host+"/subscribe";   
     socket = new WebSocket(url);
     socket.onopen = function() {
-        //XXX: TODO What are you going to do here?
+        //DONE: TODO What are you going to do here?
+        console.log("Socket is now open");
     };
     socket.onerror = function(msg) {
         debug("WebSocket Error:" + msg.data);
@@ -261,7 +266,12 @@ function wsSetup() {
     socket.onmessage = function(msg) {  
         try {
             debug("WebSocket Recv:" + msg.data);
-            //XXX: TODO What are you going to do here?            
+            //DONE: TODO What are you going to do here?
+            var jsonObj = JSON.parse(msg.data);
+            for(key in jsonObj) {
+                world[key] = jsonObj[key];
+            }
+            drawNextFrame();            
         } catch (e) {
             alert("socket on message: " + e);
         }
