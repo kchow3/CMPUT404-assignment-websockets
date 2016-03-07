@@ -57,3 +57,8 @@ Contributors
 
 * Mark Galloway
 * Abram Hindle
+
+
+Used code from
+http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript
+http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range

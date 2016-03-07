@@ -123,7 +123,7 @@ def subscribe_socket(ws):
         while True:
             # block here
             msg = client.get()
-            print "Got a message!"
+            print "Got a message!: " + msg
             ws.send(msg)
     except Exception as e:# WebSocketError as e:
         print "WS Error %s" % e

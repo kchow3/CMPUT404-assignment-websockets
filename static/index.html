@@ -34,8 +34,7 @@ var context = canvas.getContext("2d");
 var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
 var wscounter = 0;
-var url = "ws://"+host+"/subscribe";   
-var socket = new WebSocket(url);
+var socket;
 
 function debug(str) {
     var debugDiv = document.getElementById('debug');
@@ -45,11 +44,30 @@ debug("Test");
 
 world = {};
 
-//XXX: TODO Make this prettier!
+//http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+//http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+//DONE: TODO Make this prettier!
 function drawCircle(context,entity) {
     with(context) {
-        beginPath();                
-        lineWidth = 3;
+        beginPath();
+        //line width random everytime
+        lineWidth = 5;
+        //add shadows and shadow blur
+        shadowBlur = 20;
+        shadowColor = "white";
         var x = entity["x"];
         var y = entity["y"];
         //moveTo(x,y);
@@ -233,18 +251,18 @@ mouse = (function() {
 })();
 
 // Add the application specific mouse listeners!
-//XXX: TODO Make these prettier!
+//DONE: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    addEntityWithoutName({'x':x,'y':y,'colour': getRandomColor()});
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    addEntityWithoutName({'x':x,'y':y,'colour': getRandomColor()});
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
-                          'radius':10});
+    addEntityWithoutName({'x':x,'y':y,'colour': getRandomColor(),
+                          'radius': getRandomInt(10,40)});
 });
 
 
@@ -258,7 +276,26 @@ function wsSetup() {
     socket = new WebSocket(url);
     socket.onopen = function() {
         //DONE: TODO What are you going to do here?
-        console.log("Socket is now open");
+        // console.log("Socket is now open");
+        var url = "http://" + host + "/world"
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState==4) {
+                try {
+                    if (xhr.status==200) {
+                        jsonObj = JSON.parse(xhr.responseText);
+                        for(key in jsonObj) {
+                            world[key] = jsonObj[key];
+                        }
+                    }
+                } 
+                catch(e) {
+                    alert('Error: ' + e.name);
+                }
+            }
+        };
+        xhr.send(null);
     };
     socket.onerror = function(msg) {
         debug("WebSocket Error:" + msg.data);
