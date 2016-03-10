@@ -60,5 +60,6 @@ Contributors
 
 
 Used code from
+https://github.com/abramhindle/WebSocketsExamples
 http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript
 http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range
